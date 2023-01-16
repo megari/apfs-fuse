@@ -428,17 +428,18 @@ void AES::SetKey(const uint8_t *key, Mode mode)
 	SetIV(0);
 }
 
+using AES_helpers::deref_as;
+using AES_helpers::store_as;
+
 void AES::Encrypt(const void *src, void *dst)
 {
-	const uint32_t * const s = reinterpret_cast<const uint32_t *>(src);
-	uint32_t * const d = reinterpret_cast<uint32_t *>(dst);
 	uint32_t s0, s1, s2, s3, t0, t1, t2, t3;
 	int r, ki;
 
-	s0 = be32toh(s[0]) ^ _erk[0];
-	s1 = be32toh(s[1]) ^ _erk[1];
-	s2 = be32toh(s[2]) ^ _erk[2];
-	s3 = be32toh(s[3]) ^ _erk[3];
+	s0 = be32toh(deref_as<uint32_t>(src, 0)) ^ _erk[0];
+	s1 = be32toh(deref_as<uint32_t>(src, 1)) ^ _erk[1];
+	s2 = be32toh(deref_as<uint32_t>(src, 2)) ^ _erk[2];
+	s3 = be32toh(deref_as<uint32_t>(src, 3)) ^ _erk[3];
 
 	ki = 4;
 	r = Nr >> 1;
@@ -460,23 +461,21 @@ void AES::Encrypt(const void *src, void *dst)
 	s2 = (Te4[t2 >> 24] & 0xFF000000) ^ (Te4[(t3 >> 16) & 0xFF] & 0xFF0000) ^ (Te4[(t0 >> 8) & 0xFF] & 0xFF00) ^ (Te4[t1 & 0xFF] & 0xFF) ^ _erk[ki++];
 	s3 = (Te4[t3 >> 24] & 0xFF000000) ^ (Te4[(t0 >> 16) & 0xFF] & 0xFF0000) ^ (Te4[(t1 >> 8) & 0xFF] & 0xFF00) ^ (Te4[t2 & 0xFF] & 0xFF) ^ _erk[ki++];
 
-	d[0] = htobe32(s0);
-	d[1] = htobe32(s1);
-	d[2] = htobe32(s2);
-	d[3] = htobe32(s3);
+	store_as<uint32_t>(dst, htobe32(s0), 0);
+	store_as<uint32_t>(dst, htobe32(s1), 1);
+	store_as<uint32_t>(dst, htobe32(s2), 2);
+	store_as<uint32_t>(dst, htobe32(s3), 3);
 }
 
 void AES::Decrypt(const void *src, void *dst)
 {
-	const uint32_t * const s = reinterpret_cast<const uint32_t *>(src);
-	uint32_t * const d = reinterpret_cast<uint32_t *>(dst);
 	uint32_t s0, s1, s2, s3, t0, t1, t2, t3;
 	int r, ki;
 
-	s0 = be32toh(s[0]) ^ _drk[0];
-	s1 = be32toh(s[1]) ^ _drk[1];
-	s2 = be32toh(s[2]) ^ _drk[2];
-	s3 = be32toh(s[3]) ^ _drk[3];
+	s0 = be32toh(deref_as<uint32_t>(src, 0)) ^ _drk[0];
+	s1 = be32toh(deref_as<uint32_t>(src, 1)) ^ _drk[1];
+	s2 = be32toh(deref_as<uint32_t>(src, 2)) ^ _drk[2];
+	s3 = be32toh(deref_as<uint32_t>(src, 3)) ^ _drk[3];
 
 	ki = 4;
 	r = Nr >> 1;
@@ -498,10 +497,10 @@ void AES::Decrypt(const void *src, void *dst)
 	s2 = (Td4[t2 >> 24] & 0xFF000000) ^ (Td4[(t1 >> 16) & 0xFF] & 0xFF0000) ^ (Td4[(t0 >> 8) & 0xFF] & 0xFF00) ^ (Td4[t3 & 0xFF] & 0xFF) ^ _drk[ki++];
 	s3 = (Td4[t3 >> 24] & 0xFF000000) ^ (Td4[(t2 >> 16) & 0xFF] & 0xFF0000) ^ (Td4[(t1 >> 8) & 0xFF] & 0xFF00) ^ (Td4[t0 & 0xFF] & 0xFF) ^ _drk[ki++];
 
-	d[0] = htobe32(s0);
-	d[1] = htobe32(s1);
-	d[2] = htobe32(s2);
-	d[3] = htobe32(s3);
+	store_as<uint32_t>(dst, htobe32(s0), 0);
+	store_as<uint32_t>(dst, htobe32(s1), 1);
+	store_as<uint32_t>(dst, htobe32(s2), 2);
+	store_as<uint32_t>(dst, htobe32(s3), 3);
 }
 
 void AES::SetIV(const uint8_t *iv)

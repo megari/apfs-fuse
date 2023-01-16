@@ -2,6 +2,29 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+
+namespace AES_helpers {
+	template<typename T, typename S>
+	T deref_as(const S *p, size_t idx_as_T = 0)
+	{
+	        const size_t byte_idx = idx_as_T * sizeof(T);
+	        const char *pc = reinterpret_cast<const char *>(p);
+	        T ret;
+
+	        memcpy(&ret, &pc[byte_idx], sizeof(T));
+	        return ret;
+	}
+
+	template<typename T, typename S>
+	void store_as(S *dst, const T& val, size_t idx_as_T = 0)
+	{
+	        const size_t byte_idx = idx_as_T * sizeof(T);
+	        char *dstc = reinterpret_cast<char *>(dst);
+
+	        memcpy(&dstc[byte_idx], &val, sizeof(T));
+	}
+};
 
 /**
  * @brief The AES class

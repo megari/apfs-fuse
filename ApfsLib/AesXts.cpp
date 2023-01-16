@@ -69,12 +69,11 @@ void AesXts::Decrypt(uint8_t* plain, const uint8_t* cipher, std::size_t size, ui
 
 void AesXts::Xor128(void *out, const void *op1, const void *op2)
 {
-	uint64_t *val64 = reinterpret_cast<uint64_t *>(out);
-	const uint64_t *op1_64 = reinterpret_cast<const uint64_t *>(op1);
-	const uint64_t *op2_64 = reinterpret_cast<const uint64_t *>(op2);
+	using AES_helpers::deref_as;
+	using AES_helpers::store_as;
 
-	val64[0] = op1_64[0] ^ op2_64[0];
-	val64[1] = op1_64[1] ^ op2_64[1];
+	store_as<uint64_t>(out, deref_as<uint64_t>(op1) ^ deref_as<uint64_t>(op2));
+	store_as<uint64_t>(out, deref_as<uint64_t>(op1, 1) ^ deref_as<uint64_t>(op2, 1), 1);
 }
 
 void AesXts::MultiplyTweak(uint64_t* tweak)
